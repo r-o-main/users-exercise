@@ -5,8 +5,8 @@
   - [Built with](#built-with)
 - [Getting started](#getting-started)
   - [Installation](#installation)
-- [Usage](#usage)
 - [API](#api)
+- [Usage](#usage)
 - [How to](#how-to)
 - [Issues](#issues)
 - [License](#license)
@@ -60,9 +60,72 @@ Homework exercise for a technical interview @ricardo.ch.
    ~/projects/ricardo-project/users-exercise$ python manage.py migrate
    ```
 
+## API
+
+Endpoint | Method | Result
+--- | --- | ---
+/api/v1/users | GET | Get all users.
+/api/v1/users/:id | GET | Get user by id.
+/api/v1/users | POST | Create a new user.
+/api/v1/users/:id | PATCH | Partial update a user by id.
+/api/v1/users/:id | PUT | Update a user by id.
+/api/v1/users/:id | DELETE | delete user by id.
+
 ## Usage
 
-## API
+To start the service, run the following command:
+```bash
+~/projects/ricardo-project/users-exercise$ python manage.py runserver
+```
+You can use the Django REST Framework browsable API to access the API: http://localhost:8000/api/v1/users
+
+or using [httpie](https://github.com/httpie/httpie#installation) command line tool:
+```bash
+$ http POST http://127.0.0.1:8000/api/v1/users last_name=Doe first_name=John email=john@example.org password=pwd0@39
+HTTP/1.1 201 Created
+Allow: GET, POST, HEAD, OPTIONS
+Content-Length: 107
+Content-Type: application/json
+Date: Sat, 05 Sep 2020 17:49:32 GMT
+Referrer-Policy: same-origin
+Server: WSGIServer/0.2 CPython/3.8.2
+Vary: Accept, Cookie
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+
+{
+    "address": "",
+    "email": "john@example.org",
+    "first_name": "John",
+    "id": 1,
+    "last_name": "Doe",
+    "password": "pwd0@39"
+}
+```
+
+or using `curl`:
+```bash
+$ curl -X GET -H 'Accept: application/json; indent=4' -i  http://127.0.0.1:8000/api/v1/users/1
+HTTP/1.1 200 OK
+Date: Sat, 05 Sep 2020 17:52:03 GMT
+Server: WSGIServer/0.2 CPython/3.8.2
+Content-Type: application/json
+Vary: Accept, Cookie
+Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+X-Frame-Options: DENY
+Content-Length: 151
+X-Content-Type-Options: nosniff
+Referrer-Policy: same-origin
+
+{
+    "id": 1,
+    "first_name": "Odile",
+    "last_name": "Deray",
+    "email": "oderay@mail.com",
+    "password": "myP@ssw0rd49",
+    "address": ""
+}
+```
 
 ## How to
 

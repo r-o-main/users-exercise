@@ -11,7 +11,11 @@ class UserSerializer(serializers.ModelSerializer):
         NB: address is redefined to allow a blank value.
     """
 
-    address = serializers.CharField(required=False, allow_blank=True, max_length=300)
+    address = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        max_length=300,
+        style={'base_template': 'textarea.html'})
 
 
     class Meta:
