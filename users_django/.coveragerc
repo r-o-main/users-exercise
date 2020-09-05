@@ -1,0 +1,6 @@
+[run]
+omit=
+    users/admin.py
+    users/apps.py
+    users/migrations/*
+    users/tests/
