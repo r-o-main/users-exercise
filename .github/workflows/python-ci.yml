@@ -27,7 +27,7 @@ jobs:
       - name: Run tests
         working-directory: ./users_django
         run: |
-          if [ ! -f db.sqlite3 ] ; then python manage.py migrate ; fi
+          if [ ! -f db.sqlite3 ] ; then python manage.py migrate users ; fi
           python manage.py test
         
       - name: Run coverage
