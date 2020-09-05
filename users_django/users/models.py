@@ -3,12 +3,12 @@ from django.db import models
 
 class User(models.Model):
     """ User data model.
-        >NB:
-        > - an id field is automatically added to the data model.
-        > - all fields but address are mandatory.
-        > - address is stored as a single text field for simplicity.
-        >If needed in a real production environment, it could be split into several fields or even a dedicated model.
-        > - password is not obfuscated nor encrypted. A maximum length is requested by CharField.
+        NB:
+          - an id field is automatically added to the data model.
+          - all fields but address are mandatory.
+          - address is stored as a single text field for simplicity.
+            If needed in a real production environment, it could be split into several fields or even a dedicated model.
+          - password is not obfuscated nor encrypted. A maximum length is requested by CharField.
     """
 
     first_name = models.CharField(max_length=70, blank=False)

@@ -14,7 +14,7 @@ ignore=CVS
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
-ignore-patterns=
+ignore-patterns=test_
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
@@ -60,7 +60,8 @@ confidence=
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use "--disable=all --enable=classes
 # --disable=W".
-disable=print-statement,
+disable=C0114, # missing-class-docstring
+        print-statement,
         parameter-unpacking,
         unpacking-in-except,
         old-raise-syntax,
@@ -525,7 +526,7 @@ max-branches=12
 max-locals=15
 
 # Maximum number of parents for a class (see R0901).
-max-parents=7
+max-parents=15
 
 # Maximum number of public methods for a class (see R0904).
 max-public-methods=20
