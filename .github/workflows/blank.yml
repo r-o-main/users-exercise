@@ -25,12 +25,15 @@ jobs:
           pip install -r requirements.txt
           
       - name: Run tests
+        working-directory: ./users_django
         run: python manage.py test
         
       - name: Run coverage
+        working-directory: ./users_django
         run: |
           coverage run --source=users manage.py test users
           coverage report
           
       - name: Run linter
+        working-directory: ./users_django
         run: DJANGO_SETTINGS_MODULE=users.settings pylint --load-plugins pylint_django users -d C0114
