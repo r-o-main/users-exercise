@@ -1,5 +1,7 @@
-from rest_framework import viewsets, pagination, filters
+from rest_framework import viewsets, pagination, filters, status
+from rest_framework.response import Response
 from django_filters import rest_framework as rest_framework_filters
+from .iputils import get_originator_country_name_from
 from .models import User
 from .serializer import UserSerializer
 
@@ -27,6 +29,20 @@ class UserViewSet(viewsets.ModelViewSet):
     filterset_fields = ('last_name', 'first_name')
     search_fields = ['=last_name', 'email']
     ordering_fields = ['last_name', 'email']
+
+
+    def create(self, request, *args, **kwargs):
+        """
+        Override parent create method to check whether the remote IP address is from Switzerland
+        before creating the model instance.
+        """
+        originator_country = get_originator_country_name_from(request)
+        if originator_country == 'Switzerland':
+            return super().create(request, *args, **kwargs)
+
+        return Response(
+            {'detail': f'Only users located in Switzerland can be created (remote address in {originator_country})'},
+            status=status.HTTP_403_FORBIDDEN)
 
 
 class UserFilter(rest_framework_filters.FilterSet):

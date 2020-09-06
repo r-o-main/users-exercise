@@ -2,7 +2,7 @@ from django.db import models
 
 
 class User(models.Model):
-    """ User data model.
+    """ User data model description for Django internal object-relational maper.
         NB:
           - an id field is automatically added to the data model.
           - all fields but address are mandatory.

@@ -4,3 +4,4 @@ markdown
 pylint_django
 coverage
 django-filter
+ipapi
