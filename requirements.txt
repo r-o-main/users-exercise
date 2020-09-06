@@ -5,3 +5,6 @@ pylint_django
 coverage
 django-filter
 ipapi
+kafka-python
+pyyaml
+termcolor

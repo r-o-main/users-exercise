@@ -3,15 +3,16 @@ import ipapi
 
 
 def get_originator_country_name_from(request):
-    """ Use Django REST throttling to get the remote address
-    See get_indet
-    return country name
+    """ Use Django REST throttling to get the remote address from the request
+        and call the ipapi with it to retrieve the country name.
+        Return the country name or "Undefined" if an exception occured during the call to ipapi
+        (to mimic the response of ipapi).
     """
     originator_ip_address = BaseThrottle().get_ident(request)
     try:
         originator_country = ipapi.location(ip=originator_ip_address, output='country_name')
         print(f"{originator_ip_address} is from {originator_country}")
-        return originator_country.strip()
     except Exception as exc:
         print(f"[ipapi] Catched exception: {exc}")
-        return None
+        originator_country = "Undefined"
+    return originator_country.strip()

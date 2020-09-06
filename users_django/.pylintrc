@@ -62,6 +62,7 @@ confidence=
 # --disable=W".
 disable=C0114, # missing-class-docstring
         W0703, # catching too general exception Exception
+        E1101, # no-member
         print-statement,
         parameter-unpacking,
         unpacking-in-except,

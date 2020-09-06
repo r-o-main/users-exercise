@@ -1,5 +1,5 @@
 from rest_framework.test import APIRequestFactory
-from rest_framework import status#, throttling
+from rest_framework import status
 from django.test import TestCase
 from django.urls import reverse
 from ..models import User
