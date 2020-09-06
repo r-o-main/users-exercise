@@ -38,4 +38,6 @@ jobs:
           
       - name: Run linter
         working-directory: ./users_django
-        run: DJANGO_SETTINGS_MODULE=users.settings pylint users -d C0114
+        run: |
+          DJANGO_SETTINGS_MODULE=users.settings pylint users -d C0114
+          DJANGO_SETTINGS_MODULE=users.settings pylint users_service -d C0114

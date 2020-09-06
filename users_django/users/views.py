@@ -65,12 +65,12 @@ class UserViewSet(viewsets.ModelViewSet):
         originator_country = get_originator_country_name_from(request)
         if originator_country == 'Switzerland':
             response = super().create(request, *args, **kwargs)
-            response.context_data = {'action': 'create', 'data': response.data}
+            response.context_data = {"action": "create", "data": response.data}
             return response
 
         return Response(
             {
-                'detail': f'Only users located in Switzerland can be created (remote address in {originator_country})',
+                "detail": f"Only users located in Switzerland can be created (remote address in {originator_country})",
             },
             status=status.HTTP_403_FORBIDDEN)
 
@@ -78,19 +78,19 @@ class UserViewSet(viewsets.ModelViewSet):
     @push_to_kafka_upon_success
     def update(self, request, *args, **kwargs):
         response = super().update(request, *args, **kwargs)
-        response.context_data = {'action': 'update', 'data': response.data}
+        response.context_data = {"action": "update", "data": response.data}
         return response
 
 
     @push_to_kafka_upon_success
     def destroy(self, request, *args, **kwargs):
         user_to_delete = self.get_object()
-        data_to_delete = serializers.serialize(format='json', queryset=[user_to_delete])
+        data_to_delete = serializers.serialize(format="json", queryset=[user_to_delete])
 
         response = super().destroy(request=request, *args, **kwargs)
         response.context_data = {
-            'action': 'delete',
-            'data': data_to_delete
+            "action": "delete",
+            "data": data_to_delete
         }
         return response
 
@@ -100,4 +100,4 @@ class UserFilter(rest_framework_filters.FilterSet):
 
     class Meta:
         model = User
-        fields = ('last_name', 'first_name')
+        fields = ("last_name", "first_name")
