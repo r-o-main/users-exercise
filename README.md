@@ -77,11 +77,11 @@ Homework exercise for a technical interview @ricardo.ch.
 
 ### Built with
 
-* *Python 3.8.2*
-* [Django](https://www.djangoproject.com)
-* [Django REST framework](https://www.django-rest-framework.org)
-* [ipapi](https://github.com/ipapi-co/ipapi-python)
-* [kafka-python](https://github.com/dpkp/kafka-python)
+- **Python 3.8.2**
+- [Django](https://www.djangoproject.com)
+- [Django REST framework](https://www.django-rest-framework.org)
+- [ipapi](https://github.com/ipapi-co/ipapi-python)
+- [kafka-python](https://github.com/dpkp/kafka-python)
 
 ## Getting started
 
@@ -135,8 +135,8 @@ In this project:
 
 ### Endpoints
 
-Endpoint | Method | Result | Parameters
---- | --- | --- | --- | ---
+Endpoint | Method | Result | Parameters 
+ --- | --- | --- | --- 
 /api/v1/users | GET | Get all users | None
 /api/v1/users | POST | Create a new user if IP address is located in Switzerland | None
 /api/v1/users/:id | GET | Get user by id | User id `REQUIRED`
