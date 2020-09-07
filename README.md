@@ -4,12 +4,29 @@
   - [Exercise](#exercise)
   - [Built with](#built-with)
 - [Getting started](#getting-started)
+  - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Project structure](#project-structure)
-- [API](#api)
+- [Users API](#users-api)
+  - [Resource URL](#resource-url)
+  - [Resource information](#resource-information)
+  - [Endpoints](#endpoints)
+  - [Query parameters](#query-parameters)
+  - [User model](#user-model)
+  - [Examples](#examples)
+  - [Get all users](#get-all-users)
+    - [Request](#request)
+    - [Response](#response)
+  - [Get single user](#get-single-user)
+    - [Request](#request-1)
+    - [Response](#response-1)
+- [Notifications](#notifications)
 - [Usage](#usage)
+  - [Start the service](#start-the-service)
+  - [Use the API](#use-the-api)
 - [How to](#how-to)
-  - [How to receive Kafka notifications](#how-to-receive-kafka-notifications)
+  - [How to launch the tests](#how-to-launch-the-tests)
+  - [How to receive the Kafka notifications](#how-to-receive-the-kafka-notifications)
 - [Roadmap](#roadmap)
 - [License](#license)
 - [Contact](#contact)
@@ -32,18 +49,24 @@ Homework exercise for a technical interview @ricardo.ch.
 
 ### Built with
 
-* Python 3.8.2
+* *Python 3.8.2*
 * [Django](https://www.djangoproject.com)
 * [Django REST framework](https://www.django-rest-framework.org)
-* ipapi
-* kafka
+* [ipapi](https://github.com/ipapi-co/ipapi-python)
+* [kafka-python](https://github.com/dpkp/kafka-python)
 
 ## Getting started
 
-### Installation
+### Prerequisites
 
 >The examples of commands below are applicable for Linux. For other OS, please refer to the [documentation](https://virtualenv.pypa.io/en/stable/).
 
+Before starting, it is recommended to ensure pip, setuptools and wheel are up to date:
+```bash
+pip install -U pip setuptools wheel
+```
+
+### Installation
 1. Create a virtualenv and activate it, for instance:
    ```bash
     ~/projects$ mkdir ricardo-project && cd ricardo-project
@@ -61,7 +84,7 @@ Homework exercise for a technical interview @ricardo.ch.
    ```
 4. Generate the sqlite database to store the users:
    ```bash
-   ~/projects/ricardo-project/users-exercise$ python manage.py migrate
+   ~/projects/ricardo-project/users-exercise/users_django$ python manage.py migrate
    ```
 
 ### Project structure
@@ -71,22 +94,140 @@ In this project:
 - the `users_service` directory is the Python package for the project. In particular, it contains the settings of the project and the URL declarations. 
 - the `users` directory is the Python package for the application to handle users.
 
-## API
+## Users API
 
-Endpoint | Method | Result
---- | --- | ---
-/api/v1/users | GET | Get all users.
-/api/v1/users/:id | GET | Get user by id.
-/api/v1/users | POST | Create a new user.
-/api/v1/users/:id | PATCH | Partial update a user by id.
-/api/v1/users/:id | PUT | Update a user by id.
-/api/v1/users/:id | DELETE | Delete user by id.
+### Resource URL
 
-Upon data change (POST, PUT, PATCH, DELETE), a notification event is sent on a Kafka topic if the Kafka environment is up and running:
+`http://127.0.0.1:8000/api/v1/users`[.json]
+
+### Resource information
+
+- Response formats: JSON
+- Requires authentication: No
+
+### Endpoints
+
+Endpoint | Method | Result | Parameters
+--- | --- | --- | --- | ---
+/api/v1/users | GET | Get all users | None
+/api/v1/users | POST | Create a new user | None
+/api/v1/users/:id | GET | Get user by id | User id `REQUIRED`
+/api/v1/users/:id | PATCH | Partial update a user by id | User id `REQUIRED`
+/api/v1/users/:id | PUT | Update a user by id | User id `REQUIRED`
+/api/v1/users/:id | DELETE | Delete user by id | User id `REQUIRED`
+
+### Query parameters
+
+Parameter | Required | Usage | Description | Example
+--- | --- | --- | --- | --- 
+`last_name` | optional | Filter | Filter on user last name field (case sensitive). | `/api/v1/users/?last_name=Deray`
+`first_name` | optional | Filter | Filter on user first name field (case sensitive). | `/api/v1/users/?last_name=Deray&first_name=Odile`
+`search` | optional | Search | Search in the user last name and email fields (case sensitive).| `api/v1/users?search=oderay`
+`page` | optional | Pagination | Set the current page. | `api/v1/users/?page=2   `
+`page_size` | optional | Pagination | The maximun number of users to return per page. | `api/v1/users/?page=2&page_size=4`
+
+### User model
+
+To create a user, the following fields must be filled:
 ```json
 {
-   'action': 'post', 
-   'data': {
+   "first_name": "Serge",
+   "last_name": "Karamazov",
+   "email": "s.kara@mail.com",
+   "password": "myP@ssW0ord52",
+   "address": ""
+}
+```
+>Please note that:
+> - The `password` field is returned in plain text in this version. The [Roadmap](#roadmap) section contains information on how to secure it.
+>- The `address` field can be empty.
+>- An `id` is automatically created for each user.
+>- The `email` field should be unique (only one user with the same email).
+
+### Examples
+
+### Get all users
+Returns a collection of users.
+
+#### Request
+```
+GET /api/v1/users
+```
+#### Response
+```json
+TTP 200 OK
+Allow: GET, POST, HEAD, OPTIONS
+Content-Type: application/json
+Vary: Accept
+
+{
+    "count": 3,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "url": "http://127.0.0.1:8000/api/v1/users/1",
+            "id": 1,
+            "first_name": "Serge",
+            "last_name": "Karamazov",
+            "email": "s.kara@mail.com",
+            "password": "myP@ssW0ord52",
+            "address": "Paris"
+        },
+        {
+            "url": "http://127.0.0.1:8000/api/v1/users/2",
+            "id": 2,
+            "first_name": "Odile",
+            "last_name": "Deray",
+            "email": "oderay@mail.com",
+            "password": "myP@ssw0rd49",
+            "address": ""
+        },
+        {
+            "url": "http://127.0.0.1:8000/api/v1/users/3",
+            "id": 3,
+            "first_name": "John",
+            "last_name": "Malkovitch",
+            "email": "john_m@mail.com",
+            "password": "pzd369",
+            "address": "Russia"
+        }
+    ]
+}
+```
+
+### Get single user
+Returns the user matching the id.
+
+#### Request
+```
+GET /api/v1/users/1/
+```
+
+#### Response
+```json
+HTTP 200 OK
+Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+Content-Type: application/json
+Vary: Accept
+
+{
+    "url": "http://127.0.0.1:8000/api/v1/users/1",
+    "id": 1,
+    "first_name": "Serge",
+    "last_name": "Karamazov",
+    "email": "s.kara@mail.com",
+    "password": "myP@ssW0ord52",
+    "address": "Paris"
+}
+```
+
+## Notifications
+Upon data change (`POST`, `PUT`, `PATCH`, `DELETE`), a notification event is sent on a Kafka topic if the Kafka environment is up and running:
+```json
+{
+   "action": "create", 
+   "data": {
       "id": 1, 
       "first_name": "Serge", 
       "last_name": "Karamazov", 
@@ -97,13 +238,15 @@ Upon data change (POST, PUT, PATCH, DELETE), a notification event is sent on a K
 }
 ```
 
-
 ## Usage
 
-To start the service, run the following command:
+### Start the service
+Run the following command:
 ```bash
 users-exercise/users_django$ python manage.py runserver
 ```
+
+### Use the API
 You can use the Django REST Framework browsable API to access the API: http://localhost:8000/api/v1/users
 
 or using [httpie](https://github.com/httpie/httpie#installation) command line tool:
@@ -156,7 +299,12 @@ Referrer-Policy: same-origin
 
 ## How to
 
-### How to receive Kafka notifications
+### How to launch the tests
+```bash
+users-exercise/users_django$ python manage.py test
+```
+
+### How to receive the Kafka notifications
 
 Download Kafka and follow the [quickstart guide](https://kafka.apache.org/quickstart) to start Kafka environment and create your topic. Make sure to register the topic name in the `users_django/users/kafka/conf.yml` file.
 
@@ -174,7 +322,7 @@ pip install kafka-python
 >>> consumer.subscribe('users-events')
 >>> for msg in consumer:
 ...     print(msg.value)
-{'action': 'delete', 'data': {"url": "http://testserver/api/v1/users/1", "id": 1, "first_name": "Serge", "last_name": "Karamazov", "email": "skara@mail.com", "password": "myP@ssW0ord52", "address": "5 rue de la poste Paris"}}
+{"action": "delete", "data": {"url": "http://testserver/api/v1/users/1", "id": 1, "first_name": "Serge", "last_name": "Karamazov", "email": "skara@mail.com", "password": "myP@ssW0ord52", "address": "5 rue de la poste Paris"}}
 ```
 it returns consuùerrecord cf github link
 
@@ -187,14 +335,22 @@ $ bin/kafka-console-consumer.sh --topic users-events --from-beginning --bootstra
 ## Roadmap
 This API has been implemented in a very short timeframe and there are few limitations to consider (non exhaustive list):
 - [ ] Authentication and authorization were out of scope, but Django REST framework supports [authentication]  (https://www.django-rest-framework.org/api-guide/authentication/) and [permissions](https://www.django-rest-framework.org/api-guide/permissions/).
-- [ ] Passwords are stored and returned in plain text. Instead, we could for instance extend the Django `User` model to [manage passwords](https://docs.djangoproject.com/en/3.1/topics/auth/passwords/) or obfuscate passwords using a [custom field](https://www.django-rest-framework.org/api-guide/fields/#custom-fields) trick.
-- [ ] Logging is currently limited to the print of messages to the standard output for the sake of the exercise. I'd recommend to use Python logging facility for proper logging with the relevant level of information(DEBUG, INFO, WARNING, ERROR). Logging a unique transaction ID for each request could also ease the investigation.
-- [ ] Deployment through Docker for instance.
-- [ ] Kafka producer can be improved, for instance: 
-  - configuration can be extended. 
-  - New events could be published in case of failure to notify the other services.
+- [ ] Obviously passwords: they are stored and returned in plain text. Instead, we could for instance extend the Django `User` model to [manage passwords](https://docs.djangoproject.com/en/3.1/topics/auth/passwords/) or obfuscate passwords using a [custom field](https://www.django-rest-framework.org/api-guide/fields/#custom-fields) trick. My personal preference would go for an access token system as much as possible.
+- [ ] Logging is currently limited to the print of messages to the standard output for the sake of the exercise. I'd recommend to use Python logging facility for proper logging with the relevant level of information(DEBUG, INFO, WARNING, ERROR). Logging a global unique ID per transaction could also ease the traceability and troubleshooting (especially in a distributed environment).
+- [ ] Current Kafka producer is very simple and can be extended, for instance: 
+  - Using the parameters defined in https://kafka-python.readthedocs.io/en/master/apidoc/KafkaProducer.html
+  - For each action modifying users data, the data is pushed to kafka upon success only. But if the push to kafka fails, it may end up with data modified in database and no events sent to notify other services of the modification. The retry mechanism of Kafka can help, but for non-retriable exceptions, if these notifications modify the state of other services, the SAGA pattern microservice architecture could help mitigating dual writes issues. New events could be published in case of failure to notify the other services or rollback the change.
   - Mock for the tests.
-- [ ] 
+  - When kafka environment is not set or down, there is an impact on the performance of the API.
+- [ ] Sqlite database is suitable for this exercise, but for better security and scalability, other RDMS like MySQL or PostgreSQL are probably more suitable.
+- [ ] The server is not setup for production. Containerizing the application with Docker would be a good option on top of that to create a production-ready setup.
+- [ ] Adding a detailed reference documentation for the API.
+- [ ] Users API could have more parameters, for instance:
+    - `country` to return users with address located in a country
+    - `since_id` to return users with id greater than since_id
+    - `max_id` to return users with id less than max_id
+    - `until` to return users created before a date (requires to add creation date)
+    - etc.
 
 ## License
 Distributed under the MIT License. See LICENSE for more information.

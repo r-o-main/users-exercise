@@ -16,8 +16,8 @@ def on_send_success(record_metadata):
 
 def on_send_error(exception):
     """ Callback on delivey failure.
-        In a real service, it could be used for instance to publish another event
-        to notify the other services of the failure.
+        In a real service, it could be used for instance in some cases to publish another event
+        to notify the other services of the failure (if not related to Kafka environment).
     """
     print(colored(f'[KAFKA] PUSHED FAILED: {exception}>', 'red'))
 

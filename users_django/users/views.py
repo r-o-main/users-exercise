@@ -1,3 +1,19 @@
+""" User view to control the API endpoints (user-list and user-detail).
+The ModelViewSet provides the default actions on users:
+ - list (get)
+ - create (post)
+ - retrieve (get)
+ - update (put)
+ - partial update (patch)
+ - destroy (delete)
+See https://github.com/encode/django-rest-framework/blob/master/rest_framework/viewsets.py
+
+NB: for each action modifying users data, the data is pushed to kafka upon success only,
+but if the push to kafka fails, it may end up with data modified in database and no events
+sent to notify other services of the modification. The retry mechanism of Kafka could help,
+but for non-retriable exceptions, a SAGA pattern architecture could help if these notifications
+modify the state of other services.
+"""
 from rest_framework import viewsets, pagination, filters, status
 from rest_framework.response import Response
 from django_filters import rest_framework as rest_framework_filters
@@ -18,10 +34,10 @@ class CustomPagination(pagination.PageNumberPagination):
     page_size = 10
     max_page_size = 20
 
-# The ModelViewSet provides the default actions:
+
 class UserViewSet(viewsets.ModelViewSet):
     """
-    API endpoint for `list()`, `create()`, `retrieve()`, `update()`, `partial_update()` and `destroy()`actions
+    API endpoint for `list()`, `create()`, `retrieve()`, `update()`, `partial_update()` and `destroy()` actions
     on users.
 
     ### Endpoints:
@@ -61,6 +77,7 @@ class UserViewSet(viewsets.ModelViewSet):
         """
         Override parent create method to check whether the remote IP address is from Switzerland
         before creating the model instance.
+        Fill the response context_data before returning to pass it to the KafkaNotifier.
         """
         originator_country = get_originator_country_name_from(request)
         if originator_country == 'Switzerland':
@@ -77,6 +94,10 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @push_to_kafka_upon_success
     def update(self, request, *args, **kwargs):
+        """
+        Override parent update method to push to kafka upon scussess
+        Fill the response context_data before returning to pass it to the KafkaNotifier.
+        """
         response = super().update(request, *args, **kwargs)
         response.context_data = {"action": "update", "data": response.data}
         return response
@@ -84,6 +105,10 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @push_to_kafka_upon_success
     def destroy(self, request, *args, **kwargs):
+        """
+        Override parent destroy method to push to kafka upon scussess
+        Fill the response context_data before returning to pass it to the KafkaNotifier.
+        """
         user_to_delete = self.get_object()
         data_to_delete = serializers.serialize(format="json", queryset=[user_to_delete])
 
