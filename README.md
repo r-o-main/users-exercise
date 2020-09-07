@@ -608,11 +608,11 @@ Example of notification:
 
 ## Roadmap
 This API has been implemented in a very short timeframe and there are few limitations to consider (non exhaustive list):
-- [ ] Authentication and authorization were out of scope, but Django REST framework supports [authentication]  (https://www.django-rest-framework.org/api-guide/authentication/) and [permissions](https://www.django-rest-framework.org/api-guide/permissions/).
+- [ ] Authentication and authorization were out of scope, but Django REST framework supports [authentication](https://www.django-rest-framework.org/api-guide/authentication/) and [permissions](https://www.django-rest-framework.org/api-guide/permissions/).
 - [ ] Obviously passwords: they are stored and returned in plain text. Instead, we could for instance extend the Django `User` model to [manage passwords](https://docs.djangoproject.com/en/3.1/topics/auth/passwords/) or obfuscate passwords using a [custom field](https://www.django-rest-framework.org/api-guide/fields/#custom-fields) trick. My personal preference would go for an access token system as much as possible.
 - [ ] Logging is currently limited to the print of messages to the standard output for the sake of the exercise. I'd recommend to use Python logging facility for proper logging with the relevant level of information(DEBUG, INFO, WARNING, ERROR). Logging a global unique ID per transaction could also ease the traceability and troubleshooting (especially in a distributed environment).
 - [ ] Current Kafka producer is very simple and can be extended, for instance: 
-  - Using the parameters defined in https://kafka-python.readthedocs.io/en/master/apidoc/KafkaProducer.html
+  - Using the parameters defined in [kafka-python documentation](https://kafka-python.readthedocs.io/en/master/apidoc/KafkaProducer.html).
   - For each action modifying users data, the data is pushed to kafka upon success only. But if the push to kafka fails, it may end up with data modified in database and no events sent to notify other services of the modification. The retry mechanism of Kafka can help, but for non-retriable exceptions, if these notifications modify the state of other services, the SAGA pattern microservice architecture could help mitigating dual writes issues. New events could be published in case of failure to notify the other services or rollback the change.
   - Mock for the tests.
   - When kafka environment is not set or down, there is an impact on the performance of the API.
