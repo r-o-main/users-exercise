@@ -15,11 +15,39 @@
   - [User model](#user-model)
   - [Examples](#examples)
   - [Get all users](#get-all-users)
-    - [Request](#request)
-    - [Response](#response)
+      - [Request](#request)
+      - [Response 200](#response-200)
+  - [Create a user](#create-a-user)
+    - [Create a valid user](#create-a-valid-user)
+      - [Request](#request-1)
+      - [Response 201](#response-201)
+    - [Create an invalid user](#create-an-invalid-user)
+      - [Request](#request-2)
+      - [Response 400](#response-400)
+    - [Create a user with an IP address not from Switzerland](#create-a-user-with-an-ip-address-not-from-switzerland)
+      - [Request](#request-3)
+      - [Response 403](#response-403)
   - [Get single user](#get-single-user)
-    - [Request](#request-1)
-    - [Response](#response-1)
+    - [Valid user](#valid-user)
+      - [Request](#request-4)
+      - [Response 200](#response-200-1)
+    - [Invalid user](#invalid-user)
+      - [Request](#request-5)
+      - [Response 404](#response-404)
+- [Update single user](#update-single-user)
+    - [Valid user](#valid-user-1)
+      - [Request](#request-6)
+      - [Response 200](#response-200-2)
+    - [Invalid user](#invalid-user-1)
+      - [Request](#request-7)
+      - [Response 404](#response-404-1)
+- [Delete single user](#delete-single-user)
+    - [Valid user](#valid-user-2)
+      - [Request](#request-8)
+      - [Response 204](#response-204)
+    - [Invalid user](#invalid-user-2)
+      - [Request](#request-9)
+      - [Response 404](#response-404-2)
 - [Notifications](#notifications)
 - [Usage](#usage)
   - [Start the service](#start-the-service)
@@ -110,7 +138,7 @@ In this project:
 Endpoint | Method | Result | Parameters
 --- | --- | --- | --- | ---
 /api/v1/users | GET | Get all users | None
-/api/v1/users | POST | Create a new user | None
+/api/v1/users | POST | Create a new user if IP address is located in Switzerland | None
 /api/v1/users/:id | GET | Get user by id | User id `REQUIRED`
 /api/v1/users/:id | PATCH | Partial update a user by id | User id `REQUIRED`
 /api/v1/users/:id | PUT | Update a user by id | User id `REQUIRED`
@@ -149,11 +177,11 @@ To create a user, the following fields must be filled:
 ### Get all users
 Returns a collection of users.
 
-#### Request
+##### Request
 ```
 GET /api/v1/users
 ```
-#### Response
+##### Response 200
 ```json
 TTP 200 OK
 Allow: GET, POST, HEAD, OPTIONS
@@ -196,15 +224,124 @@ Vary: Accept
 }
 ```
 
+### Create a user
+Returns the newly created user with its `id` and `url`.
+
+#### Create a valid user
+IP address should be located in Switzerland and `first_name`, `last_name`, `email`, `password` fields are filled.
+
+##### Request
+```
+POST /api/v1/users
+```
+
+Body:
+```json
+{
+   "first_name": "Serge",
+   "last_name": "Karamazov",
+   "email": "s.kara@mail.com",
+   "password": "myP@ssW0ord52",
+   "address": ""
+}
+```
+
+##### Response 201
+```json
+HTTP 201 Created
+Allow: GET, POST, HEAD, OPTIONS
+Content-Type: application/json
+Location: http://127.0.0.1:8000/api/v1/users/53
+Vary: Accept
+
+{
+    "url": "http://127.0.0.1:8000/api/v1/users/53",
+    "id": 53,
+    "first_name": "Serge",
+    "last_name": "Karamazov",
+    "email": "s.kara@mail.com",
+    "password": "myP@ssW0ord52",
+    "address": ""
+}
+
+```
+
+#### Create an invalid user
+Either `first_name`, `last_name`, `email` or `password` fields are not filled.
+
+##### Request
+```
+POST /api/v1/users
+```
+
+Body:
+```json
+{
+   "first_name": "Serge",
+   "last_name": "Karamazov",
+   "email": "s.kara@mail.com",
+   "address": ""
+}
+```
+
+##### Response 400
+```json
+HTTP 400 Bad Request
+Allow: GET, POST, HEAD, OPTIONS
+Content-Type: application/json
+Vary: Accept
+
+{
+    "email": [
+        "user with this email already exists."
+    ],
+    "password": [
+        "This field is required."
+    ]
+}
+```
+
+#### Create a user with an IP address not from Switzerland
+
+##### Request
+```
+POST /api/v1/users
+```
+
+Body:
+```json
+{
+   "first_name": "Serge",
+   "last_name": "Karamazov",
+   "email": "s.kara@mail.com",
+   "password": "myP@ssW0ord52",
+   "address": ""
+}
+```
+
+##### Response 403
+```json
+HTTP 403 Forbidden
+Allow: GET, POST, HEAD, OPTIONS
+Content-Type: application/json
+Vary: Accept
+
+{
+    "detail": "Only users located in Switzerland can be created (remote address in France)"
+}
+```
+
 ### Get single user
-Returns the user matching the id.
+Returns the user matching the provided user id.
 
-#### Request
+#### Valid user
+
+##### Request
 ```
-GET /api/v1/users/1/
+GET /api/v1/users/1
 ```
 
-#### Response
+##### Response 200
 ```json
 HTTP 200 OK
 Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
@@ -222,6 +359,121 @@ Vary: Accept
 }
 ```
 
+#### Invalid user
+
+##### Request
+```
+GET /api/v1/users/100
+```
+
+##### Response 404
+```json
+HTTP 404 Not Found
+Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+Content-Type: application/json
+Vary: Accept
+
+{
+    "detail": "Not found."
+}
+```
+
+## Update single user
+Returns the modified user matching the provided user id.
+
+#### Valid user
+
+##### Request
+```
+PATCH /api/v1/users/1
+```
+Body:
+```json
+{
+    "address": "NYC"
+}
+```
+
+##### Response 200
+```json
+HTTP 200 OK
+Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+Content-Type: application/json
+Vary: Accept
+
+{
+    "url": "http://127.0.0.1:8000/api/v1/users/1",
+    "id": 1,
+    "first_name": "Serge",
+    "last_name": "Karamazov",
+    "email": "s.kara@mail.com",
+    "password": "myP@ssW0ord52",
+    "address": "NYC"
+}
+```
+
+#### Invalid user
+
+##### Request
+```
+PATCH /api/v1/users/100
+```
+Body:
+```json
+{
+    "address": "NYC"
+}
+```
+
+##### Response 404
+```json
+HTTP 404 Not Found
+Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+Content-Type: application/json
+Vary: Accept
+
+{
+    "detail": "Not found."
+}
+```
+
+## Delete single user
+Delete the user matching the provided user id.
+
+#### Valid user
+
+##### Request
+```
+DELETE /api/v1/users/1
+```
+
+##### Response 204
+```json
+HTTP 204 No Content
+Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+Content-Type: application/json
+Vary: Accept
+```
+
+#### Invalid user
+
+##### Request
+```
+DELETE /api/v1/users/100
+```
+
+##### Response 404
+```json
+HTTP 404 Not Found
+Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+Content-Type: application/json
+Vary: Accept
+
+{
+    "detail": "Not found."
+}
+```
+
 ## Notifications
 Upon data change (`POST`, `PUT`, `PATCH`, `DELETE`), a notification event is sent on a Kafka topic if the Kafka environment is up and running:
 ```json
@@ -231,9 +483,9 @@ Upon data change (`POST`, `PUT`, `PATCH`, `DELETE`), a notification event is sen
       "id": 1, 
       "first_name": "Serge", 
       "last_name": "Karamazov", 
-      "email": "skara@mail.com", 
+      "email": "s.kara@mail.com", 
       "password": "myP@ssW0ord52", 
-      "address": "5 rue de la poste Paris"
+      "address": "Paris"
       }
 }
 ```
@@ -267,7 +519,7 @@ X-Frame-Options: DENY
     "address": "",
     "email": "john@example.org",
     "first_name": "John",
-    "id": 1,
+    "id": 4,
     "last_name": "Doe",
     "password": "pwd0@39"
 }
@@ -275,7 +527,7 @@ X-Frame-Options: DENY
 
 or using `curl`:
 ```json
-$ curl -X GET -H 'Accept: application/json; indent=4' -i  http://127.0.0.1:8000/api/v1/users/1
+$ curl -X GET -H 'Accept: application/json; indent=4' -i  http://127.0.0.1:8000/api/v1/users/2
 HTTP/1.1 200 OK
 Date: Sat, 05 Sep 2020 17:52:03 GMT
 Server: WSGIServer/0.2 CPython/3.8.2
@@ -288,7 +540,7 @@ X-Content-Type-Options: nosniff
 Referrer-Policy: same-origin
 
 {
-    "id": 1,
+    "id": 2,
     "first_name": "Odile",
     "last_name": "Deray",
     "email": "oderay@mail.com",
