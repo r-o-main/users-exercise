@@ -66,8 +66,8 @@ class KafkaNotifier:
                 print(exception)
 
     def send(self, json_payload, topic=None):
-        """
-        Use _default_topic if no topic is given.
+        """ Send a JSON formatted event json_payload to a Kafka topic.
+            Use _default_topic if no topic is given.
         """
         topic = topic if topic is not None else self._default_topic
         if self.producer is not None and self.producer.bootstrap_connected():
@@ -76,11 +76,13 @@ class KafkaNotifier:
                     topic=topic,
                     value=json_payload
                     ).add_callback(on_send_success).add_errback(on_send_error)
+                # Print event for debug
                 print(f'[KAFKA] PUSHED {json_payload} to kafka topic <{topic}>')
 
             except KafkaTimeoutError as exception:
                 print(colored(f"[KAFKA] Caught KafkaTimeoutError exception: {exception}", "red"))
         else:
+            # print event for traceability if not sent
             print(
                 colored(
                     f"""[KAFKA] No push on topic [{topic}] for message:

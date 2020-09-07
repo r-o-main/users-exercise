@@ -21,7 +21,7 @@ class UserTest(TestCase):
 
 
     def test_retrieve_user_when_by_name_should_match(self):
-        '''Ensure users can be found by last name.
+        '''Ensure users can be found by full name.
         '''
         user_serge_karamazov = User.objects.get(last_name='Karamazov', first_name='Serge')
         self.assertEqual(
@@ -29,7 +29,7 @@ class UserTest(TestCase):
 
 
     def test_retrieve_user_when_by_email_should_match(self):
-        '''Ensure users can be found by last name.
+        '''Ensure users can be found by email.
         '''
         user_odile_deray = User.objects.get(email='oderay@ricardo.ch')
         self.assertEqual(

@@ -9,7 +9,7 @@ class User(models.Model):
           - email should be unique: only one user with the same email.
           - address is stored as a single text field for simplicity.
             If needed in a real production environment, it could be split into several fields or even a dedicated model.
-          - password is not obfuscated nor encrypted. A maximum length is requested by CharField.
+          - password is not obfuscated nor encrypted (see README). A maximum length is requested by CharField.
     """
 
     first_name = models.CharField(max_length=70, blank=False)

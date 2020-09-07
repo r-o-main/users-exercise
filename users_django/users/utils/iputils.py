@@ -3,7 +3,8 @@ import ipapi
 
 
 def get_originator_country_name_from(request):
-    """ Use Django REST throttling to get the remote address from the request
+    """ Get the originator country name for a given IP address from an HTTP request.
+        Use Django REST throttling to get the remote address from the request
         and call the ipapi with it to retrieve the country name.
         Return the country name or "Undefined" if an exception occured during the call to ipapi
         (to mimic the response of ipapi).
