@@ -31,21 +31,21 @@
     - [Valid user](#valid-user)
       - [Request](#request-4)
       - [Response 200](#response-200-1)
-    - [Invalid user](#invalid-user)
+    - [User not existing](#user-not-existing)
       - [Request](#request-5)
       - [Response 404](#response-404)
 - [Update single user](#update-single-user)
     - [Valid user](#valid-user-1)
       - [Request](#request-6)
       - [Response 200](#response-200-2)
-    - [Invalid user](#invalid-user-1)
+    - [User not existing](#user-not-existing-1)
       - [Request](#request-7)
       - [Response 404](#response-404-1)
 - [Delete single user](#delete-single-user)
     - [Valid user](#valid-user-2)
       - [Request](#request-8)
       - [Response 204](#response-204)
-    - [Invalid user](#invalid-user-2)
+    - [User not existing](#user-not-existing-2)
       - [Request](#request-9)
       - [Response 404](#response-404-2)
 - [Notifications](#notifications)
@@ -362,7 +362,7 @@ Vary: Accept
 }
 ```
 
-#### Invalid user
+#### User not existing
 
 ##### Request
 ```
@@ -415,7 +415,7 @@ Vary: Accept
 }
 ```
 
-#### Invalid user
+#### User not existing
 
 ##### Request
 ```
@@ -458,7 +458,7 @@ Content-Type: application/json
 Vary: Accept
 ```
 
-#### Invalid user
+#### User not existing
 
 ##### Request
 ```
