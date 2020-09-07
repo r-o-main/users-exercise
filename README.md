@@ -55,6 +55,9 @@
 - [How to](#how-to)
   - [How to launch the tests](#how-to-launch-the-tests)
   - [How to receive the Kafka notifications](#how-to-receive-the-kafka-notifications)
+    - [Setup](#setup)
+    - [From the Kafka consumer console](#from-the-kafka-consumer-console)
+    - [From the python interpreter](#from-the-python-interpreter)
 - [Roadmap](#roadmap)
 - [License](#license)
 - [Contact](#contact)
@@ -558,15 +561,29 @@ users-exercise/users_django$ python manage.py test
 
 ### How to receive the Kafka notifications
 
-Download Kafka and follow the [quickstart guide](https://kafka.apache.org/quickstart) to start Kafka environment and create your topic. Make sure to register the topic name in the `users_django/users/kafka/conf.yml` file.
+#### Setup
+Download Kafka and follow the [quickstart guide](https://kafka.apache.org/quickstart) to start Kafka environment and create your topic (here `users-events`). Make sure to register the topic name in the `users_django/users/kafka/conf.yml` file.
 
-with python :
+You are now ready to receive notifications.
 
-make sure to activate your virtualenv or run:
+#### From the Kafka consumer console
+As described in the [quickstart guide](https://kafka.apache.org/quickstart):
 ```bash
-pip install kafka-python
+$ bin/kafka-console-consumer.sh --topic users-events --from-beginning --bootstrap-server localhost:9092
 ```
 
+#### From the python interpreter
+Make sure to first activate your virtualenv or run:
+```bash
+$ pip install kafka-python
+```
+
+Then start the [python interpreter](https://docs.python.org/3/tutorial/interpreter.html):
+```bash
+$ python
+```
+
+And create a simple Kafka consumer that subscribes on the topic you created (here `users-events`):
 ```python
 >>> from kafka import KafkaConsumer
 >>> import json
@@ -574,14 +591,19 @@ pip install kafka-python
 >>> consumer.subscribe('users-events')
 >>> for msg in consumer:
 ...     print(msg.value)
-{"action": "delete", "data": {"url": "http://testserver/api/v1/users/1", "id": 1, "first_name": "Serge", "last_name": "Karamazov", "email": "skara@mail.com", "password": "myP@ssW0ord52", "address": "5 rue de la poste Paris"}}
 ```
-it returns consuùerrecord cf github link
 
+>Messages received are of type `ConsumerRecord`:
+>```python
+>ConsumerRecord = collections.namedtuple("ConsumerRecord",
+>    ["topic", "partition", "offset", "timestamp", "timestamp_type",
+>     "key", "value", "headers", "checksum", "serialized_key_size", "serialized_value_size", "serialized_header_size"])
+>```
+>Source: https://github.com/dpkp/kafka-python/blob/master/kafka/consumer/fetcher.py
 
-or using Kafka consumer console as described in the [quickstart guide](https://kafka.apache.org/quickstart):
-```bash
-$ bin/kafka-console-consumer.sh --topic users-events --from-beginning --bootstrap-server localhost:9092
+Example of notification:
+```json
+{"action": "delete", "data": {"url": "http://testserver/api/v1/users/1", "id": 1, "first_name": "Serge", "last_name": "Karamazov", "email": "s.kara@mail.com", "password": "myP@ssW0ord52", "address": "Paris"}}
 ```
 
 ## Roadmap
