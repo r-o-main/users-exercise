@@ -616,7 +616,7 @@ This API has been implemented in a very short timeframe and there are few limita
   - For each action modifying users data, the data is pushed to kafka upon success only. But if the push to kafka fails, it may end up with data modified in database and no events sent to notify other services of the modification. The retry mechanism of Kafka can help, but for non-retriable exceptions, if these notifications modify the state of other services, the SAGA pattern microservice architecture could help mitigating dual writes issues. New events could be published in case of failure to notify the other services or rollback the change.
   - Mock for the tests.
   - When kafka environment is not set or down, there is an impact on the performance of the API.
-- [ ] Sqlite database is suitable for this exercise, but for better security and scalability, other RDMS like MySQL or PostgreSQL are probably more suitable.
+- [ ] Sqlite database is suitable for this exercise, but for better security and scalability, other RDMS like MySQL or PostgreSQL would be more appropriate.
 - [ ] The server is not setup for production. Containerizing the application with Docker would be a good option on top of that to create a production-ready setup.
 - [ ] Adding a detailed reference documentation for the API.
 - [ ] Users API could have more parameters, for instance:
